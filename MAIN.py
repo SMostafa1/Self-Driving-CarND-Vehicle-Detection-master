@@ -15,14 +15,14 @@ from moviepy.editor import *
 
 # Read in cars and notcars
 car_images = glob.glob('training_dataset/vehicles/**/*.png')
-noncar_images  = glob.glob('training_dataset/non-vehicles/**/*.png')
+noncar_images = glob.glob('training_dataset/non-vehicles/**/*.png')
 
 print(len(car_images), len(noncar_images))
 
-car_img = mpimg.imread(car_images[5])
+car_img = mpimg.imread(car_images[500])
 _, car_dst = Utilities.get_hog_features(car_img[:,:,2], 9, 8, 8, vis=True, feature_vec=True)
 
-noncar_img = mpimg.imread(noncar_images[5])
+noncar_img = mpimg.imread(noncar_images[500])
 _, noncar_dst = Utilities.get_hog_features(noncar_img[:,:,2], 9, 8, 8, vis=True, feature_vec=True)
 
 # Visualize
@@ -91,7 +91,10 @@ print('Test Accuracy of SVC = ', round(svc.score(X_test, y_test), 4))
 ########################################################################################################################
 
 ###########################################Proscess Image###############################################################
-
+#the size and position of cars in the image will be different depending on their distance from the camera,
+# `find_cars` will have to be called a few times with different `ystart`, `ystop`, and `scale` values.
+# after tuning these parameters thae values below best fit.
+#A scale of less than 1.0 produce a lot of false positives.
 def process_frame(img):
     Boxes = []
 
@@ -103,7 +106,7 @@ def process_frame(img):
 
     ystart = 380
     ystop = 490
-    scale = 1.0
+    scale = 1.5
     Boxes.append(Utilities.find_cars(img, ystart, ystop, scale, colorspace, hog_channel, svc, None,
                                 orient, pix_per_cell, cell_per_block, None, None))
     ystart = 400
@@ -116,6 +119,11 @@ def process_frame(img):
     scale = 2.0
     Boxes.append(Utilities.find_cars(img, ystart, ystop, scale, colorspace, hog_channel, svc, None,
                                 orient, pix_per_cell, cell_per_block, None, None))
+    # ystart = 464
+    # ystop = 660
+    # scale = 3.5
+    # Boxes.append(Utilities.find_cars(img, ystart, ystop, scale, colorspace, hog_channel, svc, None,
+    #                             orient, pix_per_cell, cell_per_block, None, None))
 
     rectangles = [item for sublist in Boxes for item in sublist]
 
