@@ -86,6 +86,10 @@ t = time.time()
 svc.fit(X_train, y_train)
 t2 = time.time()
 print(round(t2-t, 2), 'Seconds to train SVC...')
+############Rework############
+svc.decision_function(X_train)
+svc.predict(X_train)
+#############################
 # Check the score of the SVC
 print('Test Accuracy of SVC = ', round(svc.score(X_test, y_test), 4))
 ########################################################################################################################
@@ -127,11 +131,23 @@ def process_frame(img):
 
     rectangles = [item for sublist in Boxes for item in sublist]
 
+    #####Rework
+    ###################Commented for rework#######################
+    # heatmap_img = np.zeros_like(img[:, :, 0])
+    # heatmap_img = Utilities.add_heat(heatmap_img, rectangles)
+    # heatmap_img = Utilities.apply_threshold(heatmap_img, 0.9)
+    ####################New code added as per review comments##############################################
+    if len(rectangles) > 0:
+        det.add_box(rectangles)
     heatmap_img = np.zeros_like(img[:, :, 0])
-    heatmap_img = Utilities.add_heat(heatmap_img, rectangles)
-    heatmap_img = Utilities.apply_threshold(heatmap_img, 0.9)
+
+    for rect_set in det.prev_box:
+        heatmap_img = Utilities.add_heat(heatmap_img, rect_set)
+
+    heatmap_img = Utilities.apply_threshold(heatmap_img, 1 + len(det.prev_box) // 2)
+    ##################################################################
     labels = label(heatmap_img)
-    draw_img, rects = Utilities.draw_labeled_bboxes(np.copy(img), labels)
+    draw_img, rect = Utilities.draw_labeled_bboxes(np.copy(img), labels)
     return draw_img
 
 ####################################Try vehicle detection on test images################################################
@@ -149,6 +165,9 @@ def process_frame(img):
 #     plt.show()
 ########################################################################################################################
 
+
+
+det = Utilities.Vehicle_Detect()
 Video_Output_path = "output_video"
 if not os.path.isdir(Video_Output_path):
     os.mkdir(Video_Output_path)

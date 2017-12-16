@@ -242,3 +242,18 @@ def draw_labeled_bboxes(img, labels):
     return img, rects
 ########################################################################################################################
 
+###REWORK
+#############################################Save previous frames data##################################################
+##Refrenced from internet:
+# Define a class to store data from video
+class Vehicle_Detect():
+    def __init__(self):
+        # history of boxes previous n frames
+        self.prev_box= []
+
+    def add_box(self, rects):
+        self.prev_box.append(rects)
+        if len(self.prev_box) > 15:
+            # throw out oldest rectangle set(s)
+            self.prev_box = self.prev_box[len(self.prev_box) - 15:]
+########################################################################################################################
